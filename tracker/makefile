@@ -1,8 +1,8 @@
-tracker: tracker.o gps.o misc.o DS18B20.o adc.o adc_i2c.o snapper.o led.o bmp085.o bme280.o aprs.o lora.o prediction.o log.o
-	cc -o tracker tracker.o gps.o misc.o DS18B20.o adc.o adc_i2c.o snapper.o led.o bmp085.o bme280.o aprs.o  lora.o prediction.o log.o -lm -lwiringPi -lwiringPiDev -pthread -lpigpio -lrt
+tracker: tracker.o gps.o misc.o DS18B20.o adc.o adc_i2c.o snapper.o led.o bmp085.o bme280.o ap.o aprs.o lora.o prediction.o log.o
+	cc -o tracker tracker.o gps.o misc.o DS18B20.o ap.o adc.o adc_i2c.o snapper.o led.o bmp085.o bme280.o aprs.o  lora.o prediction.o log.o -lm -lwiringPi -lwiringPiDev -pthread -lpigpio -lrt
 
 
-tracker.o: tracker.c gps.h misc.h DS18B20.h adc.h adc_i2c.h bmp085.h bme280.h lora.h aprs.h prediction.h
+tracker.o: tracker.c gps.h misc.h DS18B20.h adc.h adc_i2c.h ap.h bmp085.h bme280.h lora.h aprs.h prediction.h
 	gcc -c -pthread tracker.c
 
 gps.o: gps.c gps.h misc.h
@@ -13,6 +13,9 @@ DS18B20.o: DS18B20.c DS18B20.h misc.h gps.h
 
 adc.o: adc.c adc.h misc.h gps.h
 	gcc -c -pthread adc.c
+
+ap.o: ap.c ap.h misc.h gps.h
+	gcc -c -pthread ap.c
 	
 adc_i2c.o: adc_i2c.c adc_i2c.h misc.h gps.h
 	gcc -c -pthread adc_i2c.c

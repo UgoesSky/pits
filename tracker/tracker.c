@@ -41,6 +41,7 @@
 #include "DS18B20.h"
 #include "adc.h"
 #include "adc_i2c.h"
+#include "ap.h"
 #include "misc.h"
 #include "snapper.h"
 #include "led.h"
@@ -93,6 +94,11 @@ void BuildSentence(char *TxLine, int SentenceCounter, struct TGPS *GPS)
 		sprintf(ExtraFields2, ",%.1f,%.0f", GPS->BMP180Temperature, GPS->Pressure);
 	}
 	
+	if (Config.EnableAP)
+	{
+		sprintf(ExtraFields2, ",%.1f", GPS->Pressure);
+	}
+
 	if (Config.EnableBME280)
 	{
 		sprintf(ExtraFields2, ",%.1f,%.0f,%0.1f", GPS->BMP180Temperature, GPS->Pressure, GPS->Humidity);
@@ -120,7 +126,7 @@ void BuildSentence(char *TxLine, int SentenceCounter, struct TGPS *GPS)
 
 	AppendCRC(TxLine);
 	
-    LogMessage("RTTY: %.70s", TxLine);
+    LogMessage("RTTY: %.80s", TxLine);
 }
 
 
@@ -204,6 +210,11 @@ void LoadConfigFile(struct TConfig *Config)
 		printf("BMP085 Enabled\n");
 	}
 	
+	ReadBoolean(fp, "enable_ap", -1, 0, &(Config->EnableAP));
+	if (Config->EnableAP)
+	{
+		printf("Analog Pressure Enabled\n");
+	}
 	ReadBoolean(fp, "enable_bme280", -1, 0, &(Config->EnableBME280));
 	if (Config->EnableBME280)
 	{
@@ -647,7 +658,7 @@ int main(void)
 	char Sentence[100], Command[100];
 	struct stat st = {0};
 	struct TGPS GPS;
-	pthread_t PredictionThread, LoRaThread, APRSThread, GPSThread, DS18B20Thread, ADCThread, CameraThread, BMP085Thread, BME280Thread, LEDThread, LogThread;
+	pthread_t PredictionThread, LoRaThread, APRSThread, GPSThread, DS18B20Thread, ADCThread, APThread, CameraThread, BMP085Thread, BME280Thread, LEDThread, LogThread;
 	
 	if (prog_count("tracker") > 1)
 	{
@@ -922,6 +933,15 @@ int main(void)
 		if (pthread_create(&BME280Thread, NULL, BME280Loop, &GPS))
 		{
 			fprintf(stderr, "Error creating BME280 thread\n");
+			return 1;
+		}
+	}
+
+	if (Config.EnableAP)
+	{
+		if (pthread_create(&APThread, NULL, APLoop, &GPS))
+		{
+			fprintf(stderr, "Error creating AP thread\n");
 			return 1;
 		}
 	}

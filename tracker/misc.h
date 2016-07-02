@@ -135,6 +135,7 @@ struct TConfig
 	int EnableBMP085;
 	int EnableBME280;
 	int ExternalDS18B20;
+	int EnableAP;
 	
 	// Logging
 	int EnableGPSLogging;
