@@ -16,14 +16,14 @@
 #include "ap.h"
 #include "misc.h"
 
-
 double ReadAP(int chan, double FullScale)
 {
 	int RawValue;
 	double Result;
 
-   	RawValue = AnalogRead(chan);
+   	RawValue = analogRead(chan);
 	Result = (double)RawValue * FullScale / 1024.0;
+	//printf("RawValue = %i\n", RawValue);
 
 	return Result;
 }
@@ -37,11 +37,14 @@ void *APLoop(void *some_void_ptr)
 
 	GPS = (struct TGPS *)some_void_ptr;
 
-	mcp3004Setup(100, 0);
+	if (mcp3004Setup(100, 0)<0)
+	{
+		printf("failed to setup SPI");
+	}
 		
 	while (1)
 	{
-		Pressure = ReadAP(100, 1013.25);
+		Pressure = ReadAP(100, 1034.21);
 		GPS->Pressure = Pressure;
 		// printf("Pressure = %lf\n", Pressure);
 

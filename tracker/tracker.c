@@ -126,7 +126,7 @@ void BuildSentence(char *TxLine, int SentenceCounter, struct TGPS *GPS)
 
 	AppendCRC(TxLine);
 	
-    LogMessage("RTTY: %.80s", TxLine);
+    LogMessage("RTTY: %.70s", TxLine);
 }
 
 
