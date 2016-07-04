@@ -18,6 +18,7 @@ struct TGPS
 	float Pressure;
 	float BoardCurrent;
 	int DS18B20Count;
+	int CPM;
 	float PredictedLongitude, PredictedLatitude;
 	int FlightMode;
 	int PowerMode;

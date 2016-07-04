@@ -42,6 +42,7 @@
 #include "adc.h"
 #include "adc_i2c.h"
 #include "ap.h"
+#include "geiger.h"
 #include "misc.h"
 #include "snapper.h"
 #include "led.h"
@@ -69,13 +70,14 @@ void BuildSentence(char *TxLine, int SentenceCounter, struct TGPS *GPS)
 {
     int i, j;
     unsigned char c;
-	char TimeBuffer[12], ExtraFields1[20], ExtraFields2[20], ExtraFields3[20];
+	char TimeBuffer[12], ExtraFields1[20], ExtraFields2[20], ExtraFields3[20], ExtraFields4[20];
 	
 	sprintf(TimeBuffer, "%02d:%02d:%02d", GPS->Hours, GPS->Minutes, GPS->Seconds);
 	
 	ExtraFields1[0] = '\0';
 	ExtraFields2[0] = '\0';
 	ExtraFields3[0] = '\0';
+	ExtraFields4[0] = '\0';
 	
 	if (Config.BoardType == 3)
 	{
@@ -108,8 +110,13 @@ void BuildSentence(char *TxLine, int SentenceCounter, struct TGPS *GPS)
 	{
 		sprintf(ExtraFields3, ",%3.1f", GPS->DS18B20Temperature[Config.ExternalDS18B20]);
 	}
+
+	if (Config.EnableGeiger)
+	{
+		sprintf(ExtraFields4, ",%i", GPS->CPM);
+	}
 	
-    sprintf(TxLine, "$$%s,%d,%s,%7.5lf,%7.5lf,%05.5ld,%d,%d,%d,%3.1f%s%s%s",
+    sprintf(TxLine, "$$%s,%d,%s,%7.5lf,%7.5lf,%05.5ld,%d,%d,%d,%3.1f%s%s%s%s",
             Config.Channels[RTTY_CHANNEL].PayloadID,
             SentenceCounter,
 			TimeBuffer,
@@ -122,7 +129,8 @@ void BuildSentence(char *TxLine, int SentenceCounter, struct TGPS *GPS)
             GPS->DS18B20Temperature[(GPS->DS18B20Count > 1) ? (1-Config.ExternalDS18B20) : 0],
 			ExtraFields1,
 			ExtraFields2,
-			ExtraFields3);
+			ExtraFields3,
+			ExtraFields4);
 
 	AppendCRC(TxLine);
 	
@@ -215,6 +223,13 @@ void LoadConfigFile(struct TConfig *Config)
 	{
 		printf("Analog Pressure Enabled\n");
 	}
+
+	ReadBoolean(fp, "enable_geiger", -1, 0, &(Config->EnableGeiger));
+	if (Config->EnableGeiger)
+	{
+		printf("Geiger Counter Enabled\n");
+	}
+
 	ReadBoolean(fp, "enable_bme280", -1, 0, &(Config->EnableBME280));
 	if (Config->EnableBME280)
 	{
@@ -658,7 +673,7 @@ int main(void)
 	char Sentence[100], Command[100];
 	struct stat st = {0};
 	struct TGPS GPS;
-	pthread_t PredictionThread, LoRaThread, APRSThread, GPSThread, DS18B20Thread, ADCThread, APThread, CameraThread, BMP085Thread, BME280Thread, LEDThread, LogThread;
+	pthread_t PredictionThread, LoRaThread, APRSThread, GPSThread, DS18B20Thread, ADCThread, APThread, GeigerThread, CameraThread, BMP085Thread, BME280Thread, LEDThread, LogThread;
 	
 	if (prog_count("tracker") > 1)
 	{
@@ -757,7 +772,7 @@ int main(void)
 	GPS.Pressure = 0.0;
 	GPS.MaximumAltitude = 0.0;
 	GPS.DS18B20Count = 0;
-
+	GPS.CPM = 0;
 	
 	// Set up I/O
 	if (wiringPiSetup() == -1)
@@ -942,6 +957,15 @@ int main(void)
 		if (pthread_create(&APThread, NULL, APLoop, &GPS))
 		{
 			fprintf(stderr, "Error creating AP thread\n");
+			return 1;
+		}
+	}
+
+	if (Config.EnableGeiger)
+	{
+		if (pthread_create(&GeigerThread, NULL, GeigerLoop, &GPS))
+		{
+			fprintf(stderr, "Error creating Geiger thread\n");
 			return 1;
 		}
 	}

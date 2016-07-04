@@ -12,6 +12,7 @@ image_packets=4
 enable_bmp085=N
 enable_bme280=N
 enable_ap=Y
+enable_geiger=Y
 external_temperature=1
 logging=GPS,Telemetry
 Disable_RTTY=N
