@@ -16,13 +16,13 @@
 #include "ap.h"
 #include "misc.h"
 
-double ReadAP(int chan, double FullScale)
+double ReadAP(int chan)
 {
 	int RawValue;
 	double Result;
 
    	RawValue = analogRead(chan);
-	Result = (double)RawValue * FullScale / 1024.0;
+	Result = ( (double)RawValue * 0.00488 - 0.5)*253+60;
 	//printf("RawValue = %i\n", RawValue);
 
 	return Result;
@@ -44,7 +44,7 @@ void *APLoop(void *some_void_ptr)
 		
 	while (1)
 	{
-		Pressure = ReadAP(100, 1034.21);
+		Pressure = ReadAP(100);
 		GPS->Pressure = Pressure;
 		// printf("Pressure = %lf\n", Pressure);
 
