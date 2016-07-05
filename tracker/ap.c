@@ -22,7 +22,7 @@ double ReadAP(int chan)
 	double Result;
 
    	RawValue = analogRead(chan);
-	Result = ( (double)RawValue * 0.00488 - 0.5)*253+60;
+	Result = ( (double)RawValue * 0.00488 - 0.5)*262+10;
 	//printf("RawValue = %i\n", RawValue);
 
 	return Result;
