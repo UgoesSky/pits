@@ -17,17 +17,20 @@
 
 #define GEIGER_PIN 1
 
-volatile int CPM = 0;
+volatile int counts = 0;
 
 void myInterrupt(void)
 {
-	CPM++;
+	counts++;
 }
 
 void *GeigerLoop(void *some_void_ptr)
 {
 	FILE *fp;
 	struct TGPS *GPS;
+	int val1 = 0;
+	int val2 = 0;
+	int val3 = 0;
 
 	GPS = (struct TGPS *)some_void_ptr;
 
@@ -37,9 +40,12 @@ void *GeigerLoop(void *some_void_ptr)
 
 	while (1)
 	{
-		sleep(60);
-		GPS->CPM = CPM;
-		CPM = 0;
+		sleep(15);
+		GPS->CPM = val1 + val2 + val3 + counts;
+		val1 = val2;
+		val2 = val3;
+		val3 = counts;
+		counts = 0;
 	}
 
 	return 0;
