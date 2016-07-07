@@ -805,7 +805,7 @@ int main(void)
 	}
 	
 	// Set up DS18B20
-	system("sudo modprobe w1-gpio");
+	system("sudo modprobe w1-gpio pullup=1");
 	system("sudo modprobe w1-therm");
 	
 	if (!devicetree())
