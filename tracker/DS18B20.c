@@ -32,7 +32,7 @@ void *DS18B20Loop(void *some_void_ptr)
 		if ((dir = opendir(folder)) != NULL)
 		{
 			SensorCount = 0;
-			while (((dp = readdir(dir)) != NULL) && (SensorCount < 2))
+			while (((dp = readdir(dir)) != NULL) && (SensorCount < 5))
 			{
 				if (strlen(dp->d_name) > 3)
 				{
@@ -52,7 +52,7 @@ void *DS18B20Loop(void *some_void_ptr)
 										token = strtok(line, "=");
 										value = strtok(NULL, "\n");
 										Temperature = atof(value) / 1000;
-										// printf("%d: %5.3fC\n", SensorCount, Temperature);
+										//printf("%d: %5.3fC\n", SensorCount, Temperature);
 										GPS->DS18B20Temperature[SensorCount++] = Temperature;
 									}
 								}

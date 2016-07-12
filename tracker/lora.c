@@ -259,7 +259,7 @@ int BuildLoRaSentence(char *TxLine, int Channel, struct TGPS *GPS)
 	static char ExternalFields[100];
 	static FILE *ExternalFile=NULL;
 	static int FirstTime=1;
-    int Count, i, j;
+    int Count, i, j, TSensor, TLength;
     unsigned char c;
     unsigned int CRC, xPolynomial;
 	char TimeBuffer[12], ExtraFields1[20], ExtraFields2[20], ExtraFields3[20], ExtraFields4[32], ExtraFields5[32], ExtraFields6[32];
@@ -298,9 +298,10 @@ int BuildLoRaSentence(char *TxLine, int Channel, struct TGPS *GPS)
 		sprintf(ExtraFields2, ",%.1f,%.0f", GPS->BMP180Temperature, GPS->Pressure);
 	}
 	
-	if (GPS->DS18B20Count > 1)
+	TLength = 0;
+	for (TSensor = 0; TSensor < GPS->DS18B20Count ; TSensor++)
 	{
-		sprintf(ExtraFields3, ",%3.1f", GPS->DS18B20Temperature[Config.ExternalDS18B20]);
+		TLength += sprintf(ExtraFields3+TLength, ",%3.1f", GPS->DS18B20Temperature[TSensor]);
 	}
 	
 	if (Config.EnableLandingPrediction && (Config.PredictionID[0] == '\0'))
@@ -384,7 +385,7 @@ int BuildLoRaSentence(char *TxLine, int Channel, struct TGPS *GPS)
 
 	// $$ASTROPI,4,16:49:36,51.95023,-2.54444,00151,0,0,13,29.8,0.0,0,0.0,25.7,995.0,40.3,4.0,121.0,5.0,0.0,-0.0,1.0
 	
-    sprintf(TxLine, "$$%s,%d,%s,%7.5lf,%7.5lf,%05.5ld,%d,%d,%d,%3.1f%s%s%s%s%s%s%s",
+    sprintf(TxLine, "$$%s,%d,%s,%7.5lf,%7.5lf,%05.5ld,%d,%d,%d%s%s%s%s%s%s%s",
             Config.Channels[LORA_CHANNEL+Channel].PayloadID,
             Config.Channels[LORA_CHANNEL+Channel].SentenceCounter,
 			TimeBuffer,
@@ -394,7 +395,6 @@ int BuildLoRaSentence(char *TxLine, int Channel, struct TGPS *GPS)
 			(GPS->Speed * 13) / 7,
 			GPS->Direction,
 			GPS->Satellites,
-            GPS->DS18B20Temperature[1-Config.ExternalDS18B20],
 			ExtraFields1,
 			ExtraFields2,
 			ExtraFields3,

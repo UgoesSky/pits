@@ -68,9 +68,9 @@ char *SSDVFolder="/home/pi/pits/tracker/images";
  
 void BuildSentence(char *TxLine, int SentenceCounter, struct TGPS *GPS)
 {
-    int i, j;
+    int i, j, TSensor,TLength;
     unsigned char c;
-	char TimeBuffer[12], ExtraFields1[20], ExtraFields2[20], ExtraFields3[20], ExtraFields4[20];
+	char TimeBuffer[12], ExtraFields1[20], ExtraFields2[20], ExtraFields3[30], ExtraFields4[20];
 	
 	sprintf(TimeBuffer, "%02d:%02d:%02d", GPS->Hours, GPS->Minutes, GPS->Seconds);
 	
@@ -106,9 +106,10 @@ void BuildSentence(char *TxLine, int SentenceCounter, struct TGPS *GPS)
 		sprintf(ExtraFields2, ",%.1f,%.0f,%0.1f", GPS->BMP180Temperature, GPS->Pressure, GPS->Humidity);
 	}
 	
-	if (GPS->DS18B20Count > 1)
+	TLength = 0;	
+	for (TSensor=0; TSensor < GPS->DS18B20Count; TSensor++ )
 	{
-		sprintf(ExtraFields3, ",%3.1f", GPS->DS18B20Temperature[Config.ExternalDS18B20]);
+		TLength += sprintf(ExtraFields3+TLength, ",%3.1f", GPS->DS18B20Temperature[TSensor]);
 	}
 
 	if (Config.EnableGeiger)
@@ -116,7 +117,7 @@ void BuildSentence(char *TxLine, int SentenceCounter, struct TGPS *GPS)
 		sprintf(ExtraFields4, ",%i", GPS->CPM);
 	}
 	
-    sprintf(TxLine, "$$%s,%d,%s,%7.5lf,%7.5lf,%05.5ld,%d,%d,%d,%3.1f%s%s%s%s",
+    sprintf(TxLine, "$$%s,%d,%s,%7.5lf,%7.5lf,%05.5ld,%d,%d,%d%s%s%s%s",
             Config.Channels[RTTY_CHANNEL].PayloadID,
             SentenceCounter,
 			TimeBuffer,
@@ -126,7 +127,6 @@ void BuildSentence(char *TxLine, int SentenceCounter, struct TGPS *GPS)
 			(GPS->Speed * 13) / 7,
 			GPS->Direction,
 			GPS->Satellites,            
-            GPS->DS18B20Temperature[(GPS->DS18B20Count > 1) ? (1-Config.ExternalDS18B20) : 0],
 			ExtraFields1,
 			ExtraFields2,
 			ExtraFields3,
@@ -236,12 +236,6 @@ void LoadConfigFile(struct TConfig *Config)
 		printf("BME280 Enabled\n");
 	}
 	
-	Config->ExternalDS18B20 = ReadInteger(fp, "external_temperature", -1, 0, 1);
-	if (Config->ExternalDS18B20)
-	{
-		printf("External DS18B20 Enabled\n");
-	}
-
 	Config->Camera = ReadCameraType(fp, "camera");
 	printf ("Camera (%s) %s\n", CameraTypes[Config->Camera], Config->Camera ? "Enabled" : "Disabled");
 	
@@ -767,6 +761,9 @@ int main(void)
 	GPS.Direction = 0.0;
 	GPS.DS18B20Temperature[0] = 0.0;
 	GPS.DS18B20Temperature[1] = 0.0;
+	GPS.DS18B20Temperature[2] = 0.0;
+	GPS.DS18B20Temperature[3] = 0.0;
+	GPS.DS18B20Temperature[4] = 0.0;
 	GPS.BatteryVoltage = 0.0;
 	GPS.BMP180Temperature = 0.0;
 	GPS.Pressure = 0.0;

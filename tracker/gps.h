@@ -11,7 +11,7 @@ struct TGPS
 	unsigned int Satellites;
 	int Speed;
 	int Direction;
-	float DS18B20Temperature[2];
+	float DS18B20Temperature[5];
 	float BatteryVoltage;
 	float BMP180Temperature;
 	float Humidity;
