@@ -61,10 +61,45 @@ It is therefore possible to overlay downloaded images with telemetry data, as te
 
 ## Change Log ##
 
+09/04/2018
+==========
+
+- Added HABPack support for LoRa, using encoder by Phil Crump.  Enable with LORA_HABPack_n=Y
+
+04/02/2018
+==========
+
+- Fixed APRS pre-emphasis which was actually de-emphasis!
+
+21/09/2017
+==========
+
+- Add LoRa mode 8 for SSDV repeater network
+
+15/09/2017
+==========
+
+- Re-enabled temperature sensing for Pi Zero / W
+
+05/09/2017
+==========
+
+- Print list of fields when sending first sentence for a channel.  Useful for setting up payload document.
+
+01/09/2017
+==========
+
+- Reduce amount of Rx-related guff when in listen-only mode
+
+19/08/2017
+==========
+
+- Changed startup to use systemd
+
 10/04/2017
 ==========
 
-- Added support direct upload to Habitat using an internet connection 
+- Added support direct upload to Habitat using an internet connection
  
 03/03/2017
 ==========

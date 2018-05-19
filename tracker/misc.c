@@ -453,32 +453,6 @@ void MarkMissingPackets(int Channel, int ImageNumber, int FirstMissingPacket, in
 	}
 }
 
-void ProcessSMSUplinkMessage(int LoRaChannel, unsigned char *Message)
-{
-	// Process uplink message (e.g. for Astro Pi scrolling LED)
-	// Message is like "#001,Hello Dave!\n"
-	// or "#001,First Message\nSecond Message\n"
-	char FileName[32], *Token;
-	int MessageNumber;
-	FILE *fp;
-	
-	Token = strtok((char *)Message+1, ",");
-	MessageNumber = atoi(Token);
-	
-	sprintf(FileName, "Uplink_%d.sms", MessageNumber);
-	
-	Token = strtok(NULL, "\n");
-	
-	if ((fp = fopen(FileName, "wt")) != NULL)
-	{
-		fputs(Token, fp);
-		fclose(fp);
-		
-		Config.LoRaDevices[LoRaChannel].MessageCount++;
-		Config.LoRaDevices[LoRaChannel].LastMessageNumber = MessageNumber;
-	}
-}
-
 void ProcessSSDVUplinkMessage(int Channel, unsigned char *Message)
 {
 	int Value, Image, RangeStart;
@@ -599,7 +573,7 @@ double ReadFloat(FILE *fp, char *keyword, int Channel, int NeedValue, double Def
 	return DefaultValue;
 }
 
-int ReadInteger(FILE *fp, char *keyword, int Channel, int NeedValue, int DefaultValue)
+int32_t ReadInteger(FILE *fp, char *keyword, int Channel, int NeedValue, int DefaultValue)
 {
 	char Temp[64];
 	
@@ -745,7 +719,7 @@ int prog_count(char* name)
 void LogMessage(const char *format, ...)
 {
 	#define MAX_LEN 180
-	char Buffer[200];
+	char Buffer[300];
 	
     va_list args;
     va_start(args, format);
@@ -754,12 +728,12 @@ void LogMessage(const char *format, ...)
 
     va_end(args);
 
-	if (strlen(Buffer) > MAX_LEN)
-	{
-		Buffer[MAX_LEN-2] = '.';
-		Buffer[MAX_LEN-1] = '.';
-		Buffer[MAX_LEN] = 0;
-	}
+	// if (strlen(Buffer) > MAX_LEN)
+	// {
+		// Buffer[MAX_LEN-2] = '.';
+		// Buffer[MAX_LEN-1] = '.';
+		// Buffer[MAX_LEN] = 0;
+	// }
 
 	if (Buffer[strlen(Buffer)-1] == '\n')
 	{
@@ -777,11 +751,13 @@ int devicetree(void)
 }
 
 int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
-{
+{	
+	static char *Channels[6] = {"RTTY", "APRS", "LORA0", "LORA1", "FULL", "PIPE"};
 	static char ExternalFields[100];
 	static FILE *ExternalFile=NULL;
 	static int FirstTime=1;
 	int LoRaChannel;
+	int ShowFields;
 	char TimeBuffer[12], ExtraFields1[20], ExtraFields2[20], ExtraFields3[20], ExtraFields4[64], ExtraFields5[32], ExtraFields6[32], *ExtraFields7;
 	
 	if (FirstTime)
@@ -791,6 +767,7 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 	}
 	
 	Config.Channels[Channel].SentenceCounter++;
+	ShowFields = Config.Channels[Channel].SentenceCounter == 1;
 	
 	sprintf(TimeBuffer, "%02d:%02d:%02d", GPS->Hours, GPS->Minutes, GPS->Seconds);
 	
@@ -803,6 +780,9 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 	
 	ExtraFields7 = "";
 	
+	if (ShowFields) printf("%s: ID,Ctr,Time,Lat,Lon,Alt,Sped,Head,Sats,Int.Temp", Channels[Channel]);
+	
+	
 	// Battery voltage and current, if available
 	if ((Config.BoardType == 3) || (Config.BoardType == 4) || (Config.DisableADC))
 	{
@@ -813,28 +793,33 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 		// Pi A or B.  Only Battery Voltage on the PITS
 		
 		sprintf(ExtraFields1, ",%.3f", GPS->BatteryVoltage);
+		if (ShowFields) printf(",Volts");
 	}
 	else
 	{
 		// Pi A+ or B+ (V1 or V2 or V3).  Full ADC for voltage and current
 
 		sprintf(ExtraFields1, ",%.1f,%.3f", GPS->BatteryVoltage, GPS->BoardCurrent);
+		if (ShowFields) printf(",Volts,Current");
 	}
 	
 	// BMP Pressure/Temperature/Humidity, if available
 	if (Config.EnableBME280)
 	{
 		sprintf(ExtraFields2, ",%.1f,%.0f,%0.1f", GPS->BMP180Temperature, GPS->Pressure, GPS->Humidity);
+		if (ShowFields) printf(",BME.Temp,Pressure,Humidity");
 	}
 	else if (Config.EnableBMP085)
 	{
 		sprintf(ExtraFields2, ",%.1f,%.0f", GPS->BMP180Temperature, GPS->Pressure);
+		if (ShowFields) printf(",BMP.Temp,Pressure");
 	}
 	
 	// Second DS18B20 Temperature Sensor, if available
 	if (GPS->DS18B20Count > 1)
 	{
 		sprintf(ExtraFields3, ",%3.1f", GPS->DS18B20Temperature[Config.ExternalDS18B20]);
+		if (ShowFields) printf(",Ext.Temp");
 	}
 	
 	// Landing Prediction, if enabled
@@ -846,6 +831,7 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 																GPS->PredictedLongitude,
 																GPS->PredictedLandingSpeed,
 																GPS->TimeTillLanding);
+		if (ShowFields) printf(",CDA,Pred.Lat,Pred.Lon,Pred.Land,Pred.TTL");
 	}
 	
 	// Specific to LoRa Uplink
@@ -858,11 +844,13 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 			sprintf(ExtraFields5, ",%d,%d,%d", Config.LoRaDevices[LoRaChannel].LastPacketRSSI,
 											   Config.LoRaDevices[LoRaChannel].LastPacketSNR,
 											   Config.LoRaDevices[LoRaChannel].PacketCount);
+			if (ShowFields) printf(",RSSI,SNR,Packets");
 		}
 
 		if (Config.LoRaDevices[LoRaChannel].EnableMessageStatus)
 		{	
-			sprintf(ExtraFields6, ",%d,%d", Config.LoRaDevices[LoRaChannel].LastMessageNumber, Config.LoRaDevices[LoRaChannel].MessageCount);
+			sprintf(ExtraFields6, ",%s", Config.LoRaDevices[LoRaChannel].LastCommand);
+			if (ShowFields) printf(",Command");
 		}
 		
 	}
@@ -905,6 +893,7 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 			}
 			fseek(ExternalFile, 0, SEEK_END);
 			// clearerr(ExternalFile);
+			if (ShowFields) printf(",[ExternalCSV]");
 		}
 	}	
 	
@@ -921,8 +910,10 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 	else
 	{
 		#ifdef EXTRAS_PRESENT
-			ExtraFields7 = misc_get_sentence_fields(GPS);
+			ExtraFields7 = misc_get_sentence_fields(GPS, ShowFields);
 		#endif
+			
+		if (ShowFields) printf("\n");
 		
 		sprintf((char *)TxLine, "$$%s,%d,%s,%7.5lf,%7.5lf,%5.5" PRId32  ",%d,%d,%d,%3.1f%s%s%s%s%s%s%s%s",
 				Config.Channels[Channel].PayloadID,
@@ -965,4 +956,18 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 	}
 
 	return strlen((char *)TxLine) + 1;
+}
+
+int FixDirection180(int Angle)
+{
+	if (Angle < -180)
+	{
+		return Angle + 180;
+	}
+	if (Angle > 180)
+	{
+		return Angle - 180;
+	}
+	
+	return Angle;
 }
