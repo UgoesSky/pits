@@ -667,8 +667,8 @@ int main(void)
 			printf("PITS+ Board\n");
 		}
 
-		Config.LED_OK = 25;
-		Config.LED_Warn = 24;
+		Config.LED_OK = 4;
+		Config.LED_Warn = 5;
 
 		Config.SDA = 2;
 		Config.SCL = 3;
