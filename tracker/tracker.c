@@ -62,7 +62,7 @@ struct TConfig Config;
 // Pin allocations.  Do not change unless you're using your own hardware
 // WIRING PI PINS
 #define NTX2B_ENABLE	22
-#define UBLOX_ENABLE	2
+//#define UBLOX_ENABLE	2
 // BCM PINS
 #define NTX2B_ENABLE_BCM	6
 
@@ -723,8 +723,8 @@ int main(void)
 	if (Config.BoardType == 0)
 	{
 		// Only PITS board had this, not PITS+
-		pinMode (UBLOX_ENABLE, OUTPUT);
-		digitalWrite (UBLOX_ENABLE, 0);
+		//pinMode (UBLOX_ENABLE, OUTPUT);
+		//digitalWrite (UBLOX_ENABLE, 0);
 	}
 
 	if (!Config.DisableRTTY)

@@ -1,5 +1,5 @@
 #define REG_FIFO                    0x00
-#define REG_FIFO_ADDR_PTR           0x0D 
+#define REG_FIFO_ADDR_PTR           0x0D
 #define REG_FIFO_TX_BASE_AD         0x0E
 #define REG_FIFO_RX_BASE_AD         0x0F
 #define REG_RX_NB_BYTES             0x13
@@ -79,7 +79,7 @@
 
 // Pin allocations.  Do not change unless you're using your own hardware
 #define NTX2B_ENABLE	0
-#define UBLOX_ENABLE	2
+//#define UBLOX_ENABLE	2
 
 // extern char **LoRaModes;
 
