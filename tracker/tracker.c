@@ -670,7 +670,7 @@ int main(void)
 		Config.LED_OK = 4;
 		Config.LED_Warn = 5;
 
-		Config.SDA = 2;
+		Config.SDA = 2;     //change these in pisky.txt, so no need for a change here
 		Config.SCL = 3;
 	}
 	else
