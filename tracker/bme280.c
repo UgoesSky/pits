@@ -62,10 +62,10 @@ struct TBME
 {
 	// i2c file handle
 	int fd;
-		
+
 	// Data registers containing raw readings
 	unsigned char Registers[8];
-	
+
 	// Calibration Constants
 	uint32_t T1;
 	int32_t T2, T3;
@@ -74,7 +74,7 @@ struct TBME
 	uint8_t H1, H3;
 	int16_t H2, H4, H5;
 	int8_t H6;
-	
+
 	// Raw values from registers
 	double RawTemperature;
 	double RawPressure;
@@ -87,15 +87,15 @@ int bme280ReadInt(struct TBME *bme, unsigned char address);
 // double bme280ReadUP(short fd);
 int BMEAddress;
 
-#define BME280_ADDRESS 0x76  		// Possible I2C address of BME280 pressure sensor (could also be on ox77)
+#define BME280_ADDRESS 0x76  		// Possible I2C address of BME280 pressure sensor (could also be on ox77)				//maybe needs to be changed
 
 
 int BMEPresent(struct TBME *bme, int Address)
 {
 	int IsPresent;
-	
+
 	IsPresent = 0;
-	
+
 	if ((bme->fd = open_i2c(Address)) >= 0)
 	{
 		if (wiringPiI2CRead(bme->fd) != -1)
@@ -104,20 +104,20 @@ int BMEPresent(struct TBME *bme, int Address)
 			IsPresent = 1;
 			bme280Calibration(bme);
 		}
-		
+
 		close(bme->fd);
 	}
-	
+
 	return IsPresent;
 }
 
 void bme280WriteRegister(struct TBME *bme, int Register, int Value)
 {
 	unsigned char buf[2];
-  
+
 	buf[0] = Register;
 	buf[1] = Value;
-	
+
 	if ((write(bme->fd, buf, 2)) != 2)
 	{
 		printf("Error writing to BME280\n");
@@ -127,78 +127,78 @@ void bme280WriteRegister(struct TBME *bme, int Register, int Value)
 uint16_t bme280ReadUInt16(struct TBME *bme, int Register)
 {
 	unsigned char buf[2];
-  
+
 	buf[0] = Register;
-	
+
 	if ((write(bme->fd, buf, 1)) != 1)
 	{
 		printf("Error writing to BME280\n");
 		return 0;
 	}
-	
+
 	if (read(bme->fd, buf, 2) != 2)
 	{
 		printf("Unable to read from BME280\n");
 		return 0;
 	}
-	
+
 	return (uint16_t)buf[1]<<8 | (uint16_t)buf[0];
 }
 
 uint8_t bme280ReadUInt8(struct TBME *bme, int Register)
 {
 	unsigned char buf[1];
-  
+
 	buf[0] = Register;
-	
+
 	if ((write(bme->fd, buf, 1)) != 1)
 	{
 		printf("Error writing to BME280\n");
 		return 0;
 	}
-	
+
 	if (read(bme->fd, buf, 1) != 1)
 	{
 		printf("Unable to read from BME280\n");
 		return 0;
 	}
-	
+
 	return (uint8_t)buf[0];
 }
 
 int8_t bme280ReadInt8(struct TBME *bme, int Register)
 {
 	unsigned char buf[1];
-  
+
 	buf[0] = Register;
-	
+
 	if ((write(bme->fd, buf, 1)) != 1)
 	{
 		printf("Error writing to BME280\n");
 		return 0;
 	}
-	
+
 	if (read(bme->fd, buf, 1) != 1)
 	{
 		printf("Unable to read from BME280\n");
 		return 0;
 	}
-	
+
 	return (int8_t)buf[0];
 }
 
 int16_t bme280ReadInt16(struct TBME *bme, int Register)
 {
 	unsigned char buf[2];
-  
+
 	buf[0] = Register;
-	
+
 	if ((write(bme->fd, buf, 1)) != 1)
 	{
 		printf("Error writing to BME280\n");
 		return 0;
 	}
-	
+
 	if (read(bme->fd, buf, 2) != 2)
 	{
 		printf("Unable to read from BME280\n");
@@ -213,7 +213,7 @@ void bme280Calibration(struct TBME *bme)
     bme->T1 = bme280ReadUInt16(bme, BME280_REGISTER_DIG_T1);
 	bme->T2 = bme280ReadInt16(bme, BME280_REGISTER_DIG_T2);
 	bme->T3 = bme280ReadInt16(bme, BME280_REGISTER_DIG_T3);
-	
+
 	printf("T1=%" PRId32 ", T2=%" PRId32 ", T3=%" PRId32 "\n", bme->T1, bme->T2, bme->T3);
 
     bme->P1 = bme280ReadUInt16(bme, BME280_REGISTER_DIG_P1);
@@ -225,11 +225,11 @@ void bme280Calibration(struct TBME *bme)
     bme->P7 = bme280ReadInt16(bme, BME280_REGISTER_DIG_P7);
     bme->P8 = bme280ReadInt16(bme, BME280_REGISTER_DIG_P8);
     bme->P9 = bme280ReadInt16(bme, BME280_REGISTER_DIG_P9);
-	
+
     bme->H1 = bme280ReadUInt8(bme, BME280_REGISTER_DIG_H1);
     bme->H2 = bme280ReadInt16(bme, BME280_REGISTER_DIG_H2);
     bme->H3 = bme280ReadUInt8(bme, BME280_REGISTER_DIG_H3);
-	
+
     bme->H4 = bme280ReadInt8(bme, BME280_REGISTER_DIG_H4);
 	bme->H4 *= 16;	// <<= 4;
     bme->H4 |= (bme280ReadUInt8(bme, BME280_REGISTER_DIG_H5) & 0x0F);
@@ -237,7 +237,7 @@ void bme280Calibration(struct TBME *bme)
 			// bme280ReadInt8(bme, BME280_REGISTER_DIG_H4),
 			// bme280ReadUInt8(bme, BME280_REGISTER_DIG_H5),
 			// bme->H4);
-	
+
     bme->H5 = bme280ReadInt8(bme, BME280_REGISTER_DIG_H6);
 	bme->H5 *= 16;	// <<= 4;
     bme->H5 |= (bme280ReadUInt8(bme, BME280_REGISTER_DIG_H5) >> 4);
@@ -255,7 +255,7 @@ void bme280StartMeasurement(struct TBME *bme)
 	int Mode = BME280_OSAMPLE_16;
 
 	bme280WriteRegister(bme, BME280_REGISTER_CONTROL_HUM, Mode);
-	
+
 	bme280WriteRegister(bme, BME280_REGISTER_CONTROL, Mode << 5 | Mode << 2 | 1);
 }
 
@@ -263,24 +263,24 @@ void bme280ReadDataRegisters(struct TBME *bme)
 {
 	// Read 8 data registers from F7 to FE
 	unsigned char buf[1];
-  
+
 	buf[0] = 0xF7;
 
-	if ((write(bme->fd, buf, 1)) != 1)								// Send register we want to read from	
+	if ((write(bme->fd, buf, 1)) != 1)								// Send register we want to read from
 	{
 		printf("Error writing to BME280\n");
 		return;
 	}
-	
+
 	if (read(bme->fd, bme->Registers, 8) != 8)
 	{
 		printf("Unable to read from BME280\n");
 		return;
 	}
-	
+
 	// printf ("Registers are %02X, %02X ...\n", bme->Registers[0], bme->Registers[1]);
 }
-	
+
 void bme280GetRawValues(struct TBME *bme)
 {
 	uint32_t high, medium, low, Value;
@@ -289,24 +289,24 @@ void bme280GetRawValues(struct TBME *bme)
 	high = bme->Registers[3];
 	medium = bme->Registers[4];
 	low = bme->Registers[5];
-	
+
 	Value = high<<16 | medium<<8 | low;
 
 	bme->RawTemperature	= (double)Value / 16.0;
-	
+
 	// Pressure
 	high = bme->Registers[0];
 	medium = bme->Registers[1];
 	low = bme->Registers[2];
-	
+
 	Value = high<<16 | medium<<8 | low;
 
 	bme->RawPressure = (double)Value / 16.0;
-	
+
 	// Raw Humidity
 	high = bme->Registers[6];
 	low = bme->Registers[7];
-	
+
 	Value = high<<8 | low;
 
 	bme->RawHumidity = (double)Value;
@@ -315,17 +315,17 @@ void bme280GetRawValues(struct TBME *bme)
 double bme280Temperature(struct TBME *bme)
 {
 	double var1, var2, T, T1, T2, T3;
-		
+
 	T = bme->RawTemperature;
 
 	T1 = bme->T1;
 	T2 = bme->T2;
 	T3 = bme->T3;
-	
+
 	var1 = (T/16384.0 - T1/1024.0) * T2;
-	
+
 	var2 = ((T/131072.0 - T1/8192.0) * (T/131072.0 - T1/8192.0)) * T3;
-	
+
 	bme->RawTempFine = var1 + var2;
 
 	return (var1 + var2) / 5120.0;
@@ -338,43 +338,43 @@ double bme280Pressure(struct TBME *bme)
 	var1 = (bme->RawTempFine/2.0) - 64000.0;
 	var2 = var1 * var1 * ((double)bme->P6) / 32768.0;
 	var2 = var2 + var1 * ((double)bme->P5) * 2.0;
-	
+
 	var2 = (var2/4.0)+(((double)bme->P4) * 65536.0);
-	
+
 	var1 = (((double)bme->P3) * var1 * var1 / 524288.0 + ((double)bme->P2) * var1) / 524288.0;
-	
+
 	var1 = (1.0 + var1 / 32768.0)*((double)bme->P1);
 	if (var1 == 0.0) return 0;
-		
+
 	p = 1048576.0 - bme->RawPressure;
 	p = (p - (var2 / 4096.0)) * 6250.0 / var1;
-	
+
 	var1 = ((double)bme->P9) * p * p / 2147483648.0;
 	var2 = p * ((double)bme->P8) / 32768.0;
-	
+
 	p = p + (var1 + var2 + ((double)bme->P7)) / 16.0;
-	
+
 	return p / 100;
 }
 
 double bme280Humidity(struct TBME *bme)
 {
 	double H;
-	
+
 	H = bme->RawTempFine - 76800.0;
-	
+
 	H = (bme->RawHumidity - (((double)bme->H4) * 64.0 + ((double)bme->H5) / 16384.0 * H)) *
 		(((double)bme->H2) / 65536.0 * (1.0 + ((double)bme->H6) / 67108864.0 * H *
 		(1.0 + ((double)bme->H3) / 67108864.0 * H)));
-		
+
 	H = H * (1.0 - ((double)bme->H1) * H / 524288.0);
-	
+
 	if (H > 100.0) H = 100.0;
 	if (H < 0.0) H = 0.0;
 
 	return H;
 }
-// 
+//
 
 // Read 2 bytes from the bme280
 // First byte will be from 'address'
@@ -385,11 +385,11 @@ int bme280ReadInt(struct TBME *bme, unsigned char address)
 
 	buf[0] = address;
 
-	if ((write(bme->fd, buf, 1)) != 1) {								// Send register we want to read from	
+	if ((write(bme->fd, buf, 1)) != 1) {								// Send register we want to read from
 		printf("Error writing to BME280\n");
 		return -1;
 	}
-	
+
 	if (read(bme->fd, buf, 2) != 2) {								// Read back data into buf[]
 		printf("Unable to read from BME280\n");
 		return -1;
@@ -427,19 +427,19 @@ void *BME280Loop(void *some_void_ptr)
 	{
 		printf("BME280 Not Found (nothing at addresses 76/77h)\n");
 	}
-	
+
 	while (BMEAddress)
 	{
 		if ((bme.fd = open_i2c(BMEAddress)) >= 0)
 		{
 			bme280StartMeasurement(&bme);
-		
+
 			sleep(1);		// Wait (ample time) for measurement
-		
+
 			bme280ReadDataRegisters(&bme);
-			
+
 			bme280GetRawValues(&bme);
-			
+
 			GPS->BMP180Temperature = bme280Temperature(&bme);
 			GPS->Pressure = bme280Pressure(&bme);
 			GPS->Humidity = bme280Humidity(&bme);
@@ -453,8 +453,6 @@ void *BME280Loop(void *some_void_ptr)
 
 		sleep(10);
 	}
-	
+
 	return NULL;
 }
-
-
