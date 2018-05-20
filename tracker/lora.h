@@ -78,7 +78,7 @@
 #define LNA_LOW_GAIN                0xC0  // 1100 0000
 
 // Pin allocations.  Do not change unless you're using your own hardware
-#define NTX2B_ENABLE	0
+#define NTX2B_ENABLE 22
 //#define UBLOX_ENABLE	2
 
 // extern char **LoRaModes;
