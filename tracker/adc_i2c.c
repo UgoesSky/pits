@@ -22,9 +22,9 @@
 int I2CADCExists(void)
 {
 	int fd, result;
-	
+
 	result = 0;
-	
+
 	if ((fd = open_i2c(MCP3426_ADDRESS)) >= 0)
 	{
 		if (wiringPiI2CRead(fd) != -1)
@@ -33,7 +33,7 @@ int I2CADCExists(void)
 		}
 		close(fd);
 	}
-	
+
 	return result;
 }
 
@@ -41,20 +41,20 @@ unsigned int I2CAnalogRead (int fd, int chan)
 {
 	unsigned char buffer [4] ;
 	unsigned int value;
-	
+
 	wiringPiI2CWrite(fd, 0x80 +			// bit  7   -  1 = start single-shot conversion
 						 (chan << 5) +	// bits 6,5 - 00 = channel 1, 01 = channel 2
 						 0x00 +			// bit 4    -  0 = single shot mode
 						 0x08 +			// bits 3,2 - 10 = 16-bit data (14 measurements per second)
 						 0x00);			// bits 1,0 - 00 = Gain x1
-	
+
 	delay (70) ;
 	read (fd, buffer, 3) ;
 
 	value = buffer[0];
 	value <<= 8;
 	value += buffer[1];
-	
+
 	return value;
 }
 
@@ -71,7 +71,7 @@ double ReadI2CADC(int fd, int chan, double FullScale)
 		RawValue = I2CAnalogRead(fd, chan);
 		Value += (double)RawValue * FullScale / 65536;
 	}
-	
+
 	return Value / 10;
 }
 
@@ -83,18 +83,18 @@ void *I2CADCLoop(void *some_void_ptr)
 	GPS = (struct TGPS *)some_void_ptr;
 
 	// Initialise MCP3426
-	
+
 	while (1)
 	{
 		if ((fd = open_i2c(MCP3426_ADDRESS)) >= 0)
 		{
 			double BatteryVoltage, BoardCurrent;
-			
-			BatteryVoltage = ReadI2CADC(fd, 0, Config.MaxADCVoltage);
+
+			BatteryVoltage = ReadI2CADC(fd, 0, Config.MaxADCVoltage);			//needs to be changed in pisky.txt
 			GPS->BatteryVoltage = BatteryVoltage;
 			// printf("Battery Voltage = %lf\n", BatteryVoltage);
-			
-			BoardCurrent = ReadI2CADC(fd, 1, 11.2);
+
+			BoardCurrent = ReadI2CADC(fd, 1, 11.2);				//needs to be changed here or added as Config option as seen couple lines before
 			GPS->BoardCurrent = BoardCurrent;
 			// printf("Board Current = %lf\n", BoardCurrent);
 
