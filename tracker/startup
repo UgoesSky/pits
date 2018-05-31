@@ -1,15 +1,15 @@
 #!/bin/bash
 cd /home/pi/pits/tracker
-./send_aprs &
+./send_aprs >> /home/pi/log/send_aprs.log 2>&1 &
 echo none | sudo tee /sys/class/leds/led0/trigger
 echo 1 | sudo tee /sys/class/leds/led0/brightness
-sudo ./camera &
+sudo ./camera >> /home/pi/log/camera.log 2>&1 &
 #python3 sensors.py &
 #python3 astro_led.py &
 #python3 webstuff.py
 while :
 do
-	sudo ./tracker
+	sudo ./tracker >> /home/pi/log/tracker.log 2>&1
 	sleep 5
 done
 
