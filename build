@@ -1,6 +1,7 @@
 # Build tracker program
 echo Building tracker ...
 cd tracker
+make clean
 make
 cd ..
 
