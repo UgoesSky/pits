@@ -2,7 +2,7 @@
 Description=PITS Tracker Service
  
 [Service]
-ExecStart=/home/pi/pits/tracker/startup >> /home/pi/log/startup.log 2>&1
+ExecStart=/home/pi/pits/tracker/startup
 StandardOutput=null
  
 [Install]
