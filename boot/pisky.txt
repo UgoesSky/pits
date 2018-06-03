@@ -40,15 +40,16 @@ APRS_Altitude=1500
 APRS_Telemetry=Y
 
 [LORA]
-LORA_Frequency_1=869.5
+LORA_Frequency_1=869.400
 LORA_Payload_1=UgS868
-LORA_Mode_1=1
+LORA_Mode_1=9
 LORA_DIO0_1=2
 LORA_DIO5_1=10
-#LORA_low_width_1=320
-#LORA_low_height_1=240
-#LORA_high_width_1=640
-#LORA_high_height_1=480
-#LORA_image_packets_1=6
-#LORA_image_period_1=60
-#LORA_Binary_1=N
+LORA_low_width_1=320
+LORA_low_height_1=240
+LORA_high_width_1=640
+LORA_high_height_1=480
+LORA_image_packets_1=6
+LORA_image_period_1=60
+LORA_Binary_1=N
+
