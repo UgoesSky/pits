@@ -37,7 +37,7 @@ int I2CADCExists(void)
 	return result;
 }
 
-unsigned int I2CAnalogRead (int fd, int chan)
+unsigned int I2CAnalogRead (int fd, int chan, int pga)
 {
 	unsigned char buffer [4] ;
 	unsigned int value;
@@ -46,7 +46,7 @@ unsigned int I2CAnalogRead (int fd, int chan)
 						 (chan << 5) +	// bits 6,5 - 00 = channel 1, 01 = channel 2
 						 0x00 +			// bit 4    -  0 = single shot mode
 						 0x08 +			// bits 3,2 - 10 = 16-bit data (14 measurements per second)
-						 0x00);			// bits 1,0 - 00 = Gain x1
+					 	 (pga << 0));			// bits 1,0 - 00 = Gain x1
 
 	delay (70) ;
 	read (fd, buffer, 3) ;
@@ -59,20 +59,21 @@ unsigned int I2CAnalogRead (int fd, int chan)
 }
 
 
-double ReadI2CADC(int fd, int chan, double FullScale)
+double ReadI2CADC(int fd, int chan, int pga, double FullScale)
 {
 	unsigned int RawValue;
 	double Value;
 	int i;
+	int gain =  pow (2, int pga );
 
 	Value = 0;
 	for (i=0; i<10; i++)
 	{
-		RawValue = I2CAnalogRead(fd, chan);
+		RawValue = I2CAnalogRead(fd, chan, pga);
 		Value += (double)RawValue * FullScale / 65536;
 	}
 
-	return Value / 10;
+	return Value / 10*gain;
 }
 
 void *I2CADCLoop(void *some_void_ptr)
@@ -90,13 +91,13 @@ void *I2CADCLoop(void *some_void_ptr)
 		{
 			double BatteryVoltage, BoardCurrent;
 
-			BatteryVoltage = ReadI2CADC(fd, 0, Config.MaxADCVoltage);			//needs to be changed in pisky.txt
+			BatteryVoltage = ReadI2CADC(fd, 1, 0, Config.MaxADCVoltage);			//needs to be changed in pisky.txt
 			GPS->BatteryVoltage = BatteryVoltage;
-			// printf("Battery Voltage = %lf\n", BatteryVoltage);
+			printf("Battery Voltage = %lf\n", BatteryVoltage);
 
-			BoardCurrent = ReadI2CADC(fd, 1, 11.2);				//needs to be changed here or added as Config option as seen couple lines before
+			BoardCurrent = ReadI2CADC(fd, 0, 3, Config.MaxADCCurrent) / Config.Shunt;				//needs to be changed here or added as Config option as seen couple lines before
 			GPS->BoardCurrent = BoardCurrent;
-			// printf("Board Current = %lf\n", BoardCurrent);
+			printf("Board Current = %lf\n", BoardCurrent);
 
 			close(fd);
 		}

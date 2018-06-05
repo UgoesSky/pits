@@ -181,6 +181,8 @@ void LoadConfigFile(struct TConfig *Config)
 	}
 
 	Config->MaxADCVoltage = ReadFloat(fp, "adc_vmax", -1, 0, 18.5);
+	Config->MaxADCCurrent = ReadFloat(fp, "adc_cmax", -1, 0, 11.2);
+	Config->Shunt = ReadFloat(fp, "adc_shunt", -1, 0, 0.05);
 
 	Config->Camera = ReadCameraType(fp, "camera");
 	printf ("Camera (%s) %s\n", CameraTypes[Config->Camera], Config->Camera ? "Enabled" : "Disabled");

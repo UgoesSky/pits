@@ -146,6 +146,8 @@ struct TConfig
 	int DisableADC;
 	int32_t BuoyModeAltitude;
 	double MaxADCVoltage;
+	double MaxADCCurrent;
+	double Shunt;
 
 	// Camera
 	int Camera;
