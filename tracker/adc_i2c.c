@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <wiringPiI2C.h>
 #include <wiringPi.h>
-
+#include <math.h>
 
 #include "gps.h"
 #include "misc.h"
@@ -64,7 +64,7 @@ double ReadI2CADC(int fd, int chan, int pga, double FullScale)
 	unsigned int RawValue;
 	double Value;
 	int i;
-	int gain =  pow (2, int pga );
+	double gain =  pow(2, pga);
 
 	Value = 0;
 	for (i=0; i<10; i++)
