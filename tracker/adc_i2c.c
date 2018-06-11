@@ -72,7 +72,10 @@ double ReadI2CADC(int fd, int chan, int pga, double FullScale)
 		RawValue = I2CAnalogRead(fd, chan, pga);
 		Value += (double)RawValue * FullScale / 65536;
 	}
-
+	printf("RawValue: %lf\n",RawValue );
+	printf("FullScale: %lf\n",FullScale );
+	printf("Value: %lf\n",Value );
+	printf("Gain: %lf\n",gain );
 	return Value / 10*gain;
 }
 
@@ -97,6 +100,7 @@ void *I2CADCLoop(void *some_void_ptr)
 
 			BoardCurrent = ReadI2CADC(fd, 0, 3, Config.MaxADCCurrent) / Config.Shunt;				//needs to be changed here or added as Config option as seen couple lines before
 			GPS->BoardCurrent = BoardCurrent;
+			printf("Shunt: %lf\n",Config.Shunt );
 			printf("Board Current = %lf\n", BoardCurrent);
 
 			close(fd);
