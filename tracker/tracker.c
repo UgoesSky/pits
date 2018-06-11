@@ -827,7 +827,7 @@ int main(void)
 		return 1;
 	}
 
-	if ((Config.BoardType != 3) && (Config.BoardType != 4) && (!Config.DisableADC))
+	if (!Config.DisableADC)
 	{
 		// Not a zero, so should have ADC on it
 		if (I2CADCExists())
