@@ -967,7 +967,7 @@ int main(void)
 
 				BuildSentence(Sentence, RTTY_CHANNEL, &GPS);
 
-				LogMessage("RTTY: %.70s", Sentence);
+				LogMessage("RTTY: %s", Sentence);
 
 				SendSentence(fd, (char *)Sentence);
 			}
