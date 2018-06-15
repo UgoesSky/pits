@@ -40,7 +40,7 @@ APRS_Altitude=1500
 APRS_Telemetry=Y
 
 [LORA]
-LORA_Frequency_1=869.400
+LORA_Frequency_1=869.650
 LORA_Payload_1=UgS868
 LORA_Mode_1=9
 LORA_DIO0_1=2
