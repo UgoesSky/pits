@@ -67,16 +67,18 @@ double ReadI2CADC(int fd, int chan, int pga, double FullScale)
 	double gain =  pow(2, pga);
 
 	Value = 0;
-	for (i=0; i<10; i++)
+	for (i=0; i<10; i++)					//average from 10 measurements
 	{
 		RawValue = I2CAnalogRead(fd, chan, pga);
 		Value += (double)RawValue * FullScale / 65536;
+		printf("RawValue: %u\n",RawValue );
+		printf("avr. Value: %lf\n",Value );
 	}
-	printf("RawValue: %lf\n",RawValue );
+
 	printf("FullScale: %lf\n",FullScale );
 	printf("Value: %lf\n",Value );
 	printf("Gain: %lf\n",gain );
-	return Value / 10*gain;
+	return Value / 10*gain;				//divide by 10 because of the average
 }
 
 void *I2CADCLoop(void *some_void_ptr)
