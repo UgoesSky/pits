@@ -1,6 +1,6 @@
 [Gerneral]
 disable_monitor=Y
-Disable_ADC=Y
+Disable_ADC=N
 Disable_RTTY=N
 logging=GPS,Telemetry
 enable_bmp085=N
@@ -16,6 +16,7 @@ full_image_period=60
 landing_prediction=N
 SDA=1
 SCL=7
+adc_vmax=5.12
 
 [RTTY]
 payload=UgS434
