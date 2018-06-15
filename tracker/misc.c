@@ -759,7 +759,7 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 	int LoRaChannel;
 	int ShowFields;
 	int TSensor, TLength;
-	char TimeBuffer[12], ExtraFields1[20], ExtraFields2[20], ExtraFields3[30], ExtraFields4[64], ExtraFields5[32], ExtraFields6[32], *ExtraFields7;
+	char TimeBuffer[12], ExtraFields1[20], ExtraFields2[20], ExtraFields3[40], ExtraFields4[64], ExtraFields5[32], ExtraFields6[32], *ExtraFields7;
 
 	if (FirstTime)
 	{
