@@ -758,7 +758,8 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 	static int FirstTime=1;
 	int LoRaChannel;
 	int ShowFields;
-	char TimeBuffer[12], ExtraFields1[20], ExtraFields2[20], ExtraFields3[20], ExtraFields4[64], ExtraFields5[32], ExtraFields6[32], *ExtraFields7;
+	int TSensor, TLength;
+	char TimeBuffer[12], ExtraFields1[20], ExtraFields2[20], ExtraFields3[40], ExtraFields4[64], ExtraFields5[32], ExtraFields6[32], *ExtraFields7;
 
 	if (FirstTime)
 	{
@@ -819,12 +820,13 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 		if (ShowFields) printf(",BMP.Temp,Pressure");
 	}
 
-	// Second DS18B20 Temperature Sensor, if available
-	if (GPS->DS18B20Count > 1)
+	TLength = 0;
+	for (TSensor = 0; TSensor < GPS->DS18B20Count ; TSensor++)
 	{
-		sprintf(ExtraFields3, ",%3.1f", GPS->DS18B20Temperature[Config.ExternalDS18B20]);
-		if (ShowFields) printf(",Ext.Temp");
+		TLength += sprintf(ExtraFields3+TLength, ",%3.1f", GPS->DS18B20Temperature[TSensor]);
+		if (ShowFields) printf(",Temp.%i", TSensor);
 	}
+
 
 	// Landing Prediction, if enabled
 	if (Config.EnableLandingPrediction && (Config.PredictionID[0] == '\0'))
@@ -919,7 +921,7 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 
 		if (ShowFields) printf("\n");
 
-		sprintf((char *)TxLine, "$$%s,%d,%s,%7.5lf,%7.5lf,%5.5" PRId32  ",%d,%d,%d,%3.1f%s%s%s%s%s%s%s%s",
+		sprintf((char *)TxLine, "$$%s,%d,%s,%7.5lf,%7.5lf,%5.5" PRId32  ",%d,%d,%d%s%s%s%s%s%s%s%s",
 				Config.Channels[Channel].PayloadID,
 				Config.Channels[Channel].SentenceCounter,
 				TimeBuffer,
@@ -929,7 +931,6 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 				(GPS->Speed * 13) / 7,
 				GPS->Direction,
 				GPS->Satellites,
-				GPS->DS18B20Temperature[(GPS->DS18B20Count > 1) ? (1-Config.ExternalDS18B20) : 0],
 				ExtraFields1,
 				ExtraFields2,
 				ExtraFields3,

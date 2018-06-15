@@ -71,9 +71,6 @@ struct termios options;
 char *SSDVFolder="/home/pi/pits/tracker/images";
 
 
-
-
-
 speed_t BaudToSpeed(int baud)
 {
 	switch (baud)
@@ -172,12 +169,6 @@ void LoadConfigFile(struct TConfig *Config)
 	if (Config->Channels[PIPE_CHANNEL].PayloadID[0])
 	{
 		printf ("PIPE Payload ID = '%s'\n", Config->Channels[PIPE_CHANNEL].PayloadID);
-	}
-
-	Config->ExternalDS18B20 = ReadInteger(fp, "external_temperature", -1, 0, 1);
-	if (Config->ExternalDS18B20)
-	{
-		printf("External DS18B20 Enabled\n");
 	}
 
 	Config->MaxADCVoltage = ReadFloat(fp, "adc_vmax", -1, 0, 18.5);
@@ -989,7 +980,7 @@ int main(void)
 
 				BuildSentence(Sentence, RTTY_CHANNEL, &GPS);
 
-				LogMessage("RTTY: %.70s", Sentence);
+				LogMessage("RTTY: %s", Sentence);
 
 				SendSentence(fd, (char *)Sentence);
 			}
