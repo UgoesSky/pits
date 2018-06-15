@@ -90,11 +90,11 @@ void *I2CADCLoop(void *some_void_ptr)
 		{
 			double BatteryVoltage, BoardCurrent;
 
-			BatteryVoltage = ReadI2CADC(fd, 0, Config.MaxADCVoltage);			//needs to be changed in pisky.txt
+			BatteryVoltage = ReadI2CADC(fd, 1, Config.MaxADCVoltage);			//needs to be changed in pisky.txt
 			GPS->BatteryVoltage = BatteryVoltage;
 			// printf("Battery Voltage = %lf\n", BatteryVoltage);
 
-			BoardCurrent = ReadI2CADC(fd, 1, 11.2);				//needs to be changed here or added as Config option as seen couple lines before
+			BoardCurrent = ReadI2CADC(fd, 0, 11.2);				//needs to be changed here or added as Config option as seen couple lines before
 			GPS->BoardCurrent = BoardCurrent;
 			// printf("Board Current = %lf\n", BoardCurrent);
 

@@ -816,6 +816,18 @@ int main(void)
 		return 1;
 	}
 
+	if (I2CADCExists())
+	{
+		printf ("V2.4 or later board with I2C ADC\n");
+
+		if (pthread_create(&ADCThread, NULL, I2CADCLoop, &GPS))
+		{
+			fprintf(stderr, "Error creating ADC thread\n");
+			return 1;
+		}
+	}
+
+/*
 	if ((Config.BoardType != 3) && (Config.BoardType != 4) && (!Config.DisableADC))
 	{
 		// Not a zero, so should have ADC on it
@@ -848,6 +860,7 @@ int main(void)
 			}
 		}
 	}
+*/
 
 	if (Config.Camera)
 	{

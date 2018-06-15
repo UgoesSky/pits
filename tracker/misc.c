@@ -781,10 +781,13 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 
 	ExtraFields7 = "";
 
-	if (ShowFields) printf("%s: ID,Ctr,Time,Lat,Lon,Alt,Sped,Head,Sats", Channels[Channel]);
+	if (ShowFields) printf("%s: ID,Ctr,Time,Lat,Lon,Alt,Sped,Head,Sats,Int.Temp", Channels[Channel]);
 
 
-	// Battery voltage and current, if available
+	// Battery voltage
+	sprintf(ExtraFields1, ",%.3f", GPS->BatteryVoltage);
+	if (ShowFields) printf(",Volts");
+/*
 	if ((Config.BoardType == 3) || (Config.BoardType == 4) || (Config.DisableADC))
 	{
 			// Pi Zero - no ADC on the PITS Zero, or manually disabled ADC
@@ -803,6 +806,7 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 		sprintf(ExtraFields1, ",%.1f,%.3f", GPS->BatteryVoltage, GPS->BoardCurrent);
 		if (ShowFields) printf(",Volts,Current");
 	}
+*/
 
 	// BMP Pressure/Temperature/Humidity, if available
 	if (Config.EnableBME280)
