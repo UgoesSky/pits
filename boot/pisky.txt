@@ -5,7 +5,6 @@ Disable_RTTY=N
 logging=GPS,Telemetry
 enable_bmp085=N
 enable_bme280=Y
-external_temperature=1
 camera=Y
 high=400
 full_low_width=640
@@ -52,4 +51,3 @@ LORA_high_height_1=480
 LORA_image_packets_1=6
 LORA_image_period_1=60
 LORA_Binary_1=N
-

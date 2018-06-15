@@ -45,7 +45,7 @@ static size_t file_writer(cmp_ctx_t *ctx, const void *data, size_t count) {
 }
 
 int BuildHABpackPacket(unsigned char *Packet, int Channel, struct TGPS *GPS)
-{	
+{
 	int32_t _latitude = GPS->Latitude * 10e6;
 	int32_t _longitude = GPS->Longitude * 10e6;
 	int32_t _altitude = GPS->Altitude;
@@ -56,17 +56,17 @@ int BuildHABpackPacket(unsigned char *Packet, int Channel, struct TGPS *GPS)
 	uint8_t total_send, send_voltage, send_prediction, send_temperature;
 
 	Config.Channels[Channel].SentenceCounter++;
-	
+
 	cmp_ctx_t cmp;
 	cmp_init(&cmp, (void*)Packet, 0, file_writer);
 	HABpackBufferLength = 0;
-	
+
 	send_voltage = ((Config.BoardType != 3) && (Config.BoardType != 4) && (!Config.DisableADC)) ? 1 : 0;
 	send_prediction = (Config.EnableLandingPrediction && (Config.PredictionID[0] == '\0')) ? 1 : 0;
-	send_temperature = (GPS->DS18B20Count > 1) ? 2 : 1;
+	send_temperature = 0;
 
 	total_send = 5 + send_temperature + send_voltage + send_prediction;
-	
+
 	cmp_write_map(&cmp,total_send);
 
 	cmp_write_uint(&cmp, HABPACK_CALLSIGN);
@@ -86,14 +86,8 @@ int BuildHABpackPacket(unsigned char *Packet, int Channel, struct TGPS *GPS)
 
 	cmp_write_uint(&cmp, HABPACK_GNSS_SATELLITES);
 	cmp_write_uint(&cmp, _sats);
-	
-	cmp_write_uint(&cmp, HABPACK_INTERNAL_TEMPERATURE);
-	cmp_write_sint(&cmp, (int32_t)(GPS->DS18B20Temperature[(GPS->DS18B20Count > 1) ? (1-Config.ExternalDS18B20) : 0] * 1000.0));
-	if (send_temperature > 1)
-	{
-		cmp_write_uint(&cmp, HABPACK_EXTERNAL_TEMPERATURE);
-		cmp_write_sint(&cmp, (int32_t)(GPS->DS18B20Temperature[Config.ExternalDS18B20] * 1000.0));
-	}
+
+
 
 	if (send_voltage)
 	{
@@ -106,11 +100,10 @@ int BuildHABpackPacket(unsigned char *Packet, int Channel, struct TGPS *GPS)
 	{
 		cmp_write_uint(&cmp, HABPACK_PREDICTED_LANDING_POSITION);
 		cmp_write_array(&cmp, 2);				// 2 fields to follow, lat/lon
-		
+
 		cmp_write_sint(&cmp, GPS->PredictedLatitude * 10e6);
 		cmp_write_sint(&cmp, GPS->PredictedLongitude * 10e6);
 	}
-	
+
 	return HABpackBufferLength;
 }
-
