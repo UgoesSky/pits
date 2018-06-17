@@ -21,9 +21,9 @@ struct TGPS
 	// Sensors
 	float DS18B20Temperature[10];
 	float BatteryVoltage;
-	float BMP180Temperature;
-	float Humidity;
-	float Pressure;
+	float BMP180Temperature[2];
+	float Humidity[2];
+	float Pressure[2];
 	float BoardCurrent;
 	int DS18B20Count;
 

@@ -759,7 +759,7 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 	int LoRaChannel;
 	int ShowFields;
 	int TSensor, TLength;
-	char TimeBuffer[12], ExtraFields1[20], ExtraFields2[20], ExtraFields3[40], ExtraFields4[64], ExtraFields5[32], ExtraFields6[32], *ExtraFields7;
+	char TimeBuffer[12], ExtraFields1[20], ExtraFields2[40], ExtraFields3[40], ExtraFields4[64], ExtraFields5[32], ExtraFields6[32], *ExtraFields7;
 
 	if (FirstTime)
 	{
@@ -811,12 +811,12 @@ int BuildSentence(unsigned char *TxLine, int Channel, struct TGPS *GPS)
 	// BMP Pressure/Temperature/Humidity, if available
 	if (Config.EnableBME280)
 	{
-		sprintf(ExtraFields2, ",%.1f,%.0f,%0.1f", GPS->BMP180Temperature, GPS->Pressure, GPS->Humidity);
-		if (ShowFields) printf(",BME.Temp,Pressure,Humidity");
+		sprintf(ExtraFields2, ",%.1f,%.0f,%0.1f,%.1f,%.0f,%0.1f", GPS->BMP180Temperature[0], GPS->Pressure[0], GPS->Humidity[0], GPS->BMP180Temperature[1], GPS->Pressure[1], GPS->Humidity[1]);
+		if (ShowFields) printf(",BME.Temp1,Pressure1,Humidity1,BME.Temp2,Pressure2,Humidity2");
 	}
 	else if (Config.EnableBMP085)
 	{
-		sprintf(ExtraFields2, ",%.1f,%.0f", GPS->BMP180Temperature, GPS->Pressure);
+		sprintf(ExtraFields2, ",%.1f,%.0f", GPS->BMP180Temperature[0], GPS->Pressure[0]);
 		if (ShowFields) printf(",BMP.Temp,Pressure");
 	}
 

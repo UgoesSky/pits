@@ -85,9 +85,8 @@ struct TBME
 void bme280Calibration(struct TBME *bme);
 int bme280ReadInt(struct TBME *bme, unsigned char address);
 // double bme280ReadUP(short fd);
-int BMEAddress;
-
-#define BME280_ADDRESS 0x76  		// Possible I2C address of BME280 pressure sensor (could also be on ox77)				//maybe needs to be changed
+int BMEAddress1;
+int BMEAddress2;
 
 
 int BMEPresent(struct TBME *bme, int Address)
@@ -401,54 +400,79 @@ int bme280ReadInt(struct TBME *bme, unsigned char address)
 
 void *BME280Loop(void *some_void_ptr)
 {
-	struct TBME bme;
+	struct TBME bme1;
+	struct TBME bme2;
 	struct TGPS *GPS;
 
 	GPS = (struct TGPS *)some_void_ptr;
 
-	if (BMEPresent(&bme, BME280_ADDRESS))
-	{
-		BMEAddress = BME280_ADDRESS;
-	}
-	else if (BMEPresent(&bme, BME280_ADDRESS+1))
-	{
-		BMEAddress = BME280_ADDRESS+1;
-	}
+	if (BMEPresent(&bme1, 0x76))
+	{BMEAddress1 = 0x76;}
 	else
-	{
-		BMEAddress = 0;
-	}
+	{BMEAddress1 = 0;}
 
-	if (BMEAddress)
-	{
-		printf("BME280 Found At Address %02xh\n", BMEAddress);
-	}
+	if (BMEPresent(&bme2, 0x77))
+	{BMEAddress2 = 0x77;}
 	else
-	{
-		printf("BME280 Not Found (nothing at addresses 76/77h)\n");
-	}
+	{BMEAddress2 = 0;}
 
-	while (BMEAddress)
+	if (BMEAddress1)
+	{printf("BME280 1 Found At Address %02xh\n", BMEAddress1);}
+	else
+	{printf("BME280 1 Not Found (nothing at addresses 76h)\n");}
+
+	if (BMEAddress2)
+	{printf("BME280 2 Found At Address %02xh\n", BMEAddress2);}
+	else
+	{printf("BME280 2 Not Found (nothing at addresses 77h)\n");}
+
+	while (BMEAddress1)
 	{
-		if ((bme.fd = open_i2c(BMEAddress)) >= 0)
+		if ((bme1.fd = open_i2c(BMEAddress1)) >= 0)
 		{
-			bme280StartMeasurement(&bme);
+			bme280StartMeasurement(&bme1);
 
 			sleep(1);		// Wait (ample time) for measurement
 
-			bme280ReadDataRegisters(&bme);
+			bme280ReadDataRegisters(&bme1);
 
-			bme280GetRawValues(&bme);
+			bme280GetRawValues(&bme1);
 
-			GPS->BMP180Temperature = bme280Temperature(&bme);
-			GPS->Pressure = bme280Pressure(&bme);
-			GPS->Humidity = bme280Humidity(&bme);
+			GPS->BMP180Temperature[0] = bme280Temperature(&bme1);
+			GPS->Pressure[0] = bme280Pressure(&bme1);
+			GPS->Humidity[0] = bme280Humidity(&bme1);
 
 			// printf("Temperature is %5.2lf\n", GPS->BMP180Temperature);
 			// printf("Pressure is %5.2lf\n", GPS->Pressure);
 			// printf("Humidity is %5.2lf\n", GPS->Humidity);
 
-			close(bme.fd);
+			close(bme1.fd);
+		}
+
+		sleep(10);
+	}
+
+	while (BMEAddress2)
+	{
+		if ((bme2.fd = open_i2c(BMEAddress2)) >= 0)
+		{
+			bme280StartMeasurement(&bme2);
+
+			sleep(1);		// Wait (ample time) for measurement
+
+			bme280ReadDataRegisters(&bme2);
+
+			bme280GetRawValues(&bme2);
+
+			GPS->BMP180Temperature[1] = bme280Temperature(&bme2);
+			GPS->Pressure[1] = bme280Pressure(&bme2);
+			GPS->Humidity[1] = bme280Humidity(&bme2);
+
+			// printf("Temperature is %5.2lf\n", GPS->BMP180Temperature);
+			// printf("Pressure is %5.2lf\n", GPS->Pressure);
+			// printf("Humidity is %5.2lf\n", GPS->Humidity);
+
+			close(bme2.fd);
 		}
 
 		sleep(10);

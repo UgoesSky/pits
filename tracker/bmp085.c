@@ -19,12 +19,12 @@ struct TBMP
 {
 	short fd;
 	short ac1;
-	short ac2; 
-	short ac3; 
+	short ac2;
+	short ac3;
 	unsigned short ac4;
 	unsigned short ac5;
 	unsigned short ac6;
-	short B1; 
+	short B1;
 	short B2;
 	short Mb;
 	short Mc;
@@ -52,10 +52,10 @@ void *BMP085Loop(void *some_void_ptr)
 	if ((bmp.fd = open_i2c(BMP085_ADDRESS)) >= 0)
 	{
 		int NoBMP;
-		
+
 		NoBMP = bmp085Calibration(&bmp);
 		close(bmp.fd);
-		
+
 		if (NoBMP)
 		{
 			return 0;
@@ -65,13 +65,13 @@ void *BMP085Loop(void *some_void_ptr)
 	{
 		return 0;
 	}
-	
+
 	while (1)
 	{
 		if ((bmp.fd = open_i2c(BMP085_ADDRESS)) >= 0)
 		{
-			GPS->BMP180Temperature = bmp085GetTemperature(&bmp);
-			GPS->Pressure = bmp085GetPressure(&bmp, GPS->BMP180Temperature);
+			GPS->BMP180Temperature[0] = bmp085GetTemperature(&bmp);
+			GPS->Pressure[0] = bmp085GetPressure(&bmp, GPS->BMP180Temperature[0]);
 
 			// printf("Temperature is %5.2lf\n", GPS->BMP180Temperature);
 			// printf("Pressure is %5.2lf\n", GPS->Pressure);
@@ -91,7 +91,7 @@ int bmp085Calibration(struct TBMP *bmp)
 	{
 		return 1;
 	}
-	
+
 	bmp->ac1 = bmp085ReadInt(bmp->fd, 0xAA);
 	bmp->ac2 = bmp085ReadInt(bmp->fd, 0xAC);
 	bmp->ac3 = bmp085ReadInt(bmp->fd, 0xAE);
@@ -103,7 +103,7 @@ int bmp085Calibration(struct TBMP *bmp)
 	bmp->Mb = bmp085ReadInt(bmp->fd, 0xBA);
 	bmp->Mc = bmp085ReadInt(bmp->fd, 0xBC);
 	bmp->Md = bmp085ReadInt(bmp->fd, 0xBE);
-	
+
 	return 0;
 
 	// printf ("Values are %d %d %d %u %u %u %d %d %d %d %d\n", ac1, ac2, ac3, ac4, ac5, ac6, B1, B2, Mb, Mc, Md);
@@ -171,11 +171,11 @@ int bmp085ReadInt(short fd, unsigned char address)
 
 	buf[0] = address;
 
-	if ((write(fd, buf, 1)) != 1) {								// Send register we want to read from	
+	if ((write(fd, buf, 1)) != 1) {								// Send register we want to read from
 		printf("Error writing to i2c slave\n");
 		return -1;
 	}
-	
+
 	if (read(fd, buf, 2) != 2) {								// Read back data into buf[]
 		printf("Unable to read from slave\n");
 		return -1;
@@ -189,7 +189,7 @@ unsigned short bmp085ReadUT(short fd)
 {
  	unsigned short ut;
 	unsigned char buf[10];
-  
+
   // Write 0x2E into Register 0xF4
   // This requests a temperature reading
 
@@ -203,7 +203,7 @@ unsigned short bmp085ReadUT(short fd)
 	}
 
 	usleep(5000);
-	
+
 	ut = bmp085ReadInt(fd, 0xF6);
 
 	// printf("ut = %u\n", ut);
@@ -217,7 +217,7 @@ double bmp085ReadUP(short fd)
   unsigned char msb, lsb, xlsb;
   double up;
 	unsigned char buf[10];
-  
+
   // Write 0x34 into register 0xF4
   // Request a pressure reading w/ oversampling setting
 
@@ -239,7 +239,7 @@ double bmp085ReadUP(short fd)
 		printf("Error writing to i2c slave\n");
 		return 0;
 	}
-	
+
 	if (read(fd, buf, 3) != 3)
 	{
 		printf("Unable to read from slave\n");
@@ -257,4 +257,3 @@ double bmp085ReadUP(short fd)
 
 	return up;
 }
-
