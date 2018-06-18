@@ -442,9 +442,9 @@ void *BME280Loop(void *some_void_ptr)
 			GPS->Pressure[0] = bme280Pressure(&bme1);
 			GPS->Humidity[0] = bme280Humidity(&bme1);
 
-			printf("Temperature 1 is %5.2lf\n", GPS->BMP180Temperature[0]);
-			printf("Pressure 1 is %5.2lf\n", GPS->Pressure[0]);
-			printf("Humidity 1 is %5.2lf\n", GPS->Humidity[0]);
+			//printf("Temperature 1 is %5.2lf\n", GPS->BMP180Temperature[0]);
+			//printf("Pressure 1 is %5.2lf\n", GPS->Pressure[0]);
+			//printf("Humidity 1 is %5.2lf\n", GPS->Humidity[0]);
 
 			close(bme1.fd);
 		}
@@ -463,9 +463,9 @@ void *BME280Loop(void *some_void_ptr)
 			GPS->Pressure[1] = bme280Pressure(&bme2);
 			GPS->Humidity[1] = bme280Humidity(&bme2);
 
-			printf("Temperature 2 is %5.2lf\n", GPS->BMP180Temperature[1]);
-			printf("Pressure 2 is %5.2lf\n", GPS->Pressure[1]);
-			printf("Humidity 2 is %5.2lf\n", GPS->Humidity[1]);
+			//printf("Temperature 2 is %5.2lf\n", GPS->BMP180Temperature[1]);
+			//printf("Pressure 2 is %5.2lf\n", GPS->Pressure[1]);
+			//printf("Humidity 2 is %5.2lf\n", GPS->Humidity[1]);
 
 			close(bme2.fd);
 		}
