@@ -426,7 +426,7 @@ void *BME280Loop(void *some_void_ptr)
 	else
 	{printf("BME280 2 Not Found (nothing at addresses 77h)\n");}
 
-	while (BMEAddress1)
+	while (BMEAddress1 + BMEAddress2)
 	{
 		if ((bme1.fd = open_i2c(BMEAddress1)) >= 0)
 		{
@@ -449,11 +449,6 @@ void *BME280Loop(void *some_void_ptr)
 			close(bme1.fd);
 		}
 
-		sleep(10);
-	}
-
-	while (BMEAddress2)
-	{
 		if ((bme2.fd = open_i2c(BMEAddress2)) >= 0)
 		{
 			bme280StartMeasurement(&bme2);
