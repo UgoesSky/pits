@@ -332,7 +332,7 @@ void SendAPRS(struct TGPS *GPS)
 	ax25_base91enc(stlm + 0, 2, seq);
 	ax25_base91enc(stlm + 2, 2, GPS->Satellites);
 	aprs_temperature = GPS->DS18B20Temperature[0] + 100;
-	GPS->BatteryVoltage = 4.321;
+	//GPS->BatteryVoltage = 4.321;
 	aprs_voltage = GPS->BatteryVoltage * 1000;
 	ax25_base91enc(stlm + 4, 2, aprs_temperature);
 	ax25_base91enc(stlm + 6, 2, aprs_voltage);
